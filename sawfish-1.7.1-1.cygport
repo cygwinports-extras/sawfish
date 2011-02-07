@@ -1,0 +1,9 @@
+DESCRIPTION="Extensible window manager based on Lisp-like scripting language"
+HOMEPAGE="http://sawfish.wikia.com/"
+SRC_URI="http://download.tuxfamily.org/sawfish/${PN}/${P}.tar.xz"
+
+PATCH_URI="
+	1.7.1-no-undefined.patch
+	1.7.1-require-gtkrc.patch
+	1.7.1-vpath.patch
+"

@@ -1,0 +1,33 @@
+--- origsrc/sawfish-1.7.1/themes/Crux/theme.jl	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/themes/Crux/theme.jl	2011-02-07 04:03:37.901056500 -0600
+@@ -445,7 +445,7 @@
+   (let ((done nil))
+     (lambda ()
+       (unless done
+-	(require 'gtkrc)
++	(require 'sawfish.wm.util.gtkrc)
+ 	;; recolour everything when the GTK theme changes
+ 	(gtkrc-call-after-changed color-changed)
+ 	(setq done t)))))
+--- origsrc/sawfish-1.7.1/themes/gtk/theme.jl	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/themes/gtk/theme.jl	2011-02-07 04:03:52.126678200 -0600
+@@ -18,7 +18,7 @@
+ ;; along with sawfish; see the file COPYING.  If not, write to
+ ;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ 
+-(require 'gtkrc)
++(require 'sawfish.wm.util.gtkrc)
+ 
+ ;; 15x15
+ (define minimize (list (make-image "as_min.png") nil
+--- origsrc/sawfish-1.7.1/themes/mono/theme.jl	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/themes/mono/theme.jl	2011-02-07 04:04:42.500854700 -0600
+@@ -59,7 +59,7 @@
+ 		 (not mono:active-color))
+ 	     (not initialised-gtk))
+     (setq initialised-gtk t)
+-    (require 'gtkrc)
++    (require 'sawfish.wm.util.gtkrc)
+     (gtkrc-call-after-changed
+      (lambda () (rebuild-frames-with-style 'mono))))
+   (rebuild-frames-with-style 'mono))

@@ -1,0 +1,17 @@
+--- origsrc/sawfish-1.7.1/src/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/src/Makefile.in	2011-02-07 03:12:46.898389700 -0600
+@@ -45,11 +45,12 @@ all : sawfish libclient.o $(DL_OBJS) .li
+ 
+ sawfish : $(OBJS) $(LIBOBJS)
+ 	$(rep_LIBTOOL) --mode=link --tag=CC $(CC) -export-dynamic $(LDFLAGS) \
++	  -Wl,--out-implib,libsawfish.exe.a \
+ 	  -o sawfish $(OBJS) $(LIBOBJS) $(REP_LIBS) $(PANGO_LIBS) \
+ 	  $(IMAGE_LIBS) $(X11_LIBS) $(EXTRA_X11_LIBS) $(LIBS) $(XRANDR_LIBS)
+ 
+-%.la : %.lo
+-	$(rep_DL_LD) $(LDFLAGS) -o $@ $<
++%.la : %.lo sawfish
++	$(rep_DL_LD) $(LDFLAGS) -o $@ $< $(REP_LIBS) $(X11_LIBS) -Wl,libsawfish.exe.a
+ 
+ libclient_.lo : libclient.c
+ 	$(rep_LIBTOOL) --mode=compile --tag=CC $(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<

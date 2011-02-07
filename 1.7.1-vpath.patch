@@ -1,0 +1,198 @@
+--- origsrc/sawfish-1.7.1/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/Makefile.in	2011-02-07 02:53:57.794682400 -0600
+@@ -49,7 +49,7 @@ install : all installdirs
+ 	if test $(GNOME2_SESSION) = "yes"; then \
+ 		$(INSTALL_DATA) $(srcdir)/sawfish-wm.desktop $(DESTDIR)$(GNOMEDIR)/share/gnome/wm-properties; \
+ 	fi
+-	$(INSTALL_DATA) $(top_srcdir)/sawfish.pc $(DESTDIR)$(libdir)/pkgconfig/
++	$(INSTALL_DATA) sawfish.pc $(DESTDIR)$(libdir)/pkgconfig/
+ 	if test $(XDM_SESSION) = "yes"; then \
+ 		$(INSTALL_DATA) $(top_srcdir)/sawfish-session.desktop $(DESTDIR)$(datadir)/xsessions/sawfish.desktop; \
+ 	fi
+--- origsrc/sawfish-1.7.1/lisp/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/lisp/Makefile.in	2011-02-07 02:36:20.485577200 -0600
+@@ -29,7 +29,7 @@ REP_ENVIRON:=$(REP_ENVIRON) REP_LOAD_PAT
+ 
+ # also in themes/Makefile.in
+ sawfish_prog = ../src/sawfish --batch --no-rc
+-COMPILE_ENV = SAWFISHLISPDIR=. \
++COMPILE_ENV = SAWFISHLISPDIR=$(top_srcdir)/lisp \
+ 	      SAWFISHEXECDIR=$(top_builddir)/src/.libexec \
+ 	      SAWFISHDOCFILE=../DOC \
+ 	      SAWFISH_USER_LISP_DIR=
+@@ -56,7 +56,7 @@ all : lisp
+ 
+ lisp : $(SAWFISH_LISP_FILES)
+ 	set -e; for d in $(SAWFISH_LISP_DIRS); do \
+-	  $(COMPILE_ENV) $(sawfish_prog) compiler -f compile-lib-batch $$d; \
++	  $(COMPILE_ENV) $(sawfish_prog) compiler -f compile-lib-batch $(top_srcdir)/lisp/$$d; \
+ 	done
+ 
+ sawfish/wm.jlc : sawfish/wm.jl
+@@ -68,7 +68,7 @@ install : all installdirs
+ 	done
+ 	set -e; for d in $(INSTALL_DIRS); do \
+ 	  for f in $(foreach x,$(INSTALL_FILES),$$d/$(x)); do \
+-	    $(INSTALL_DATA) $$f $(DESTDIR)$(lispdir)/$$d; \
++	    $(INSTALL_DATA) $(top_srcdir)/lisp/$$f $(DESTDIR)$(lispdir)/$$d; \
+ 	  done \
+ 	done
+ 	$(rep_INSTALL_ALIASES) -l . $(DESTDIR)$(lispdir)
+--- origsrc/sawfish-1.7.1/lisp/sawfish/cfg/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/lisp/sawfish/cfg/Makefile.in	2011-02-07 02:28:46.297755700 -0600
+@@ -34,7 +34,6 @@ SRCS :=	apply.jl		\
+ 	group.jl		\
+ 	i18n.jl			\
+ 	layout.jl		\
+-	main.jl			\
+ 	shell.jl		\
+ 	slot.jl			\
+ 	utils.jl                \
+@@ -56,7 +55,7 @@ W_OBJS := $(W_SRCS:.jl=.jlc)
+ L_OBJS := $(L_SRCS:.jl=.jlc)
+ 
+ ALL_SRCS := $(SRCS) $(W_SRCS) $(L_SRCS)
+-ALL_OBJS := $(OBJS) $(W_OBJS) $(L_OBJS)
++ALL_OBJS := $(OBJS) $(W_OBJS) $(L_OBJS) main.jlc
+ 
+ SUBSTS := -e "s|__nokogiridir__|$(lispdir)|" 
+ 
+@@ -70,16 +69,17 @@ all : $(ALL_SRCS) $(ALL_OBJS)
+ 
+ install : all installdirs
+ 	set -e; for p in $(SRCS) $(OBJS); do \
+-	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/cfg; \
++	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)${lispdir}/sawfish/cfg; \
+ 	done
+ 	set -e; for p in $(W_SRCS) $(W_OBJS); do \
+-	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/cfg/widgets; \
++	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)${lispdir}/sawfish/cfg/widgets; \
+ 	done
+ 	set -e; for p in $(L_SRCS) $(L_OBJS); do \
+-	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/cfg/layouts; \
++	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)${lispdir}/sawfish/cfg/layouts; \
+ 	done
++	$(INSTALL_DATA) main.jl main.jlc $(DESTDIR)${lispdir}/sawfish/cfg
+ 	$(INSTALL_SCRIPT) main.jlc $(DESTDIR)${bindir}/sawfish-config
+-	$(INSTALL_DATA) sawfish-config.png $(DESTDIR)${datadir}/icons/hicolor/32x32/apps/
++	$(INSTALL_DATA) $(srcdir)/sawfish-config.png $(DESTDIR)${datadir}/icons/hicolor/32x32/apps/
+ 
+ uninstall :
+ 	rm -rf $(DESTDIR)${lispdir}/sawfish/cfg
+--- origsrc/sawfish-1.7.1/lisp/sawfish/gtk/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/lisp/sawfish/gtk/Makefile.in	2011-02-07 03:08:50.464377400 -0600
+@@ -34,7 +34,6 @@ SRCS :=	widget.jl
+ W_SRCS := widgets/alist.jl	\
+ 	widgets/color.jl	\
+ 	widgets/file.jl		\
+-	widgets/font.jl		\
+ 	widgets/list.jl		\
+ 	widgets/pair.jl		\
+ 	widgets/program.jl	\
+@@ -45,7 +44,7 @@ OBJS := $(SRCS:.jl=.jlc)
+ W_OBJS := $(W_SRCS:.jl=.jlc)
+ 
+ ALL_SRCS := $(SRCS) $(W_SRCS)
+-ALL_OBJS := $(OBJS) $(W_OBJS)
++ALL_OBJS := $(OBJS) $(W_OBJS) widgets/font.jlc
+ 
+ %.jlc : %.jl
+ 	$(REP_ENVIRON) rep compiler -f compile-batch $<
+@@ -54,11 +53,12 @@ all : $(ALL_SRCS) $(ALL_OBJS)
+ 
+ install : all installdirs
+ 	set -e; for p in $(SRCS) $(OBJS); do \
+-	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/gtk; \
++	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)${lispdir}/sawfish/gtk; \
+ 	done
+ 	set -e; for p in $(W_SRCS) $(W_OBJS); do \
+-	  $(INSTALL_DATA) $$p $(DESTDIR)${lispdir}/sawfish/gtk/widgets; \
++	  $(INSTALL_DATA) $(srcdir)/$$p $(DESTDIR)${lispdir}/sawfish/gtk/widgets; \
+ 	done
++	$(INSTALL_DATA) widgets/font.jl widgets/font.jlc $(DESTDIR)${lispdir}/sawfish/gtk/widgets
+ 
+ uninstall :
+ 	for p in $(SRCS) $(OBJS); do \
+--- origsrc/sawfish-1.7.1/man/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/man/Makefile.in	2011-02-07 04:09:15.059430700 -0600
+@@ -56,7 +56,7 @@ install : sawfish.info installdirs
+ 	  $(INSTALL_DATA) $$f $(DESTDIR)$(infodir); \
+ 	done
+ 	-install-info --info-dir=$(DESTDIR)$(infodir) sawfish.info
+-	for f in sawfish*.1; do \
++	for f in $(srcdir)/sawfish*.1; do \
+ 		gzip $$f -c > $$f.gz; \
+ 		$(INSTALL_DATA) $$f.gz $(DESTDIR)$(prefix)/share/man/man1/; \
+ 	done
+--- origsrc/sawfish-1.7.1/scripts/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/scripts/Makefile.in	2011-02-07 02:43:30.254074100 -0600
+@@ -45,10 +45,10 @@ sawfish-about.jl : sawfish-about.jl.in .
+ 	sed $(SUBSTS) $< >$@
+ 
+ install : all installdirs
+-	$(INSTALL_SCRIPT) sawfish-menu.jlc $(DESTDIR)$(sawfishexecdir)/sawfish-menu
+-	$(INSTALL_SCRIPT) sawfish-client.jlc $(DESTDIR)$(bindir)/sawfish-client
++	$(INSTALL_SCRIPT) $(srcdir)/sawfish-menu.jlc $(DESTDIR)$(sawfishexecdir)/sawfish-menu
++	$(INSTALL_SCRIPT) $(srcdir)/sawfish-client.jlc $(DESTDIR)$(bindir)/sawfish-client
+ 	$(INSTALL_SCRIPT) sawfish-about.jlc $(DESTDIR)$(sawfishexecdir)/sawfish-about
+-	$(INSTALL_DATA) sawfish.png $(DESTDIR)$(sawfishdir)/sawfish.png
++	$(INSTALL_DATA) $(srcdir)/sawfish.png $(DESTDIR)$(sawfishdir)/sawfish.png
+ 
+ uninstall :
+ 	rm -f $(DESTDIR)${sawfishexecdir}/sawfish-menu
+--- origsrc/sawfish-1.7.1/src/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/src/Makefile.in	2011-02-07 03:12:46.898389700 -0600
+@@ -37,7 +37,7 @@ DL_DSTS = sawfish/wm/util/gradient.la sa
+ 	  sawfish/wm/util/x.la sawfish/wm/util/selection.la
+ DL_DIRS = sawfish/wm/util
+ 
+-INSTALL_HDRS = sawfish.h sawfish_subrs.h libclient.h server.h keys.h build.h
++INSTALL_HDRS = sawfish.h sawfish_subrs.h libclient.h server.h keys.h
+ 
+ override CFLAGS := $(CFLAGS) $(REP_CFLAGS) $(IMAGE_CFLAGS) $(X11_CFLAGS) $(PANGO_CFLAGS) 
+ 
+@@ -68,12 +69,12 @@ install : all installdirs
+ 	$(foreach x,$(DL_DSTS),\
+ 	  $(rep_LIBTOOL) --mode=install $(INSTALL_PROGRAM) \
+ 	  $(notdir $(x)) $(DESTDIR)$(sawfishexecdir)/$(dir $(x));)
+-	$(rep_INSTALL_ALIASES) -c $(srcdir) $(DESTDIR)$(sawfishexecdir)
+ 	$(rep_LIBTOOL) --mode=install $(INSTALL_PROGRAM) client.la $(DESTDIR)$(repexecdir)/sawfish/
+ 	for i in $(INSTALL_HDRS); do \
+ 	  $(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(includedir)/sawfish/; \
+ 	done
+-	$(INSTALL_DATA) $(top_srcdir)/config.h $(DESTDIR)$(includedir)/sawfish/sawfish_config.h
++	$(INSTALL_DATA) build.h $(DESTDIR)$(includedir)/sawfish/; \
++	$(INSTALL_DATA) $(top_builddir)/config.h $(DESTDIR)$(includedir)/sawfish/sawfish_config.h
+ 
+ uninstall :
+ 	for p in sawfish; do \
+--- origsrc/sawfish-1.7.1/src/fake-libexec	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/src/fake-libexec	2011-02-07 01:42:09.202200600 -0600
+@@ -4,6 +4,7 @@
+ 
+ libdir="`pwd`/.libs"
+ libexecdir="./.libexec"
++srcdir="`dirname $0`"
+ 
+ libs="\
+  sawfish.client\
+@@ -20,7 +21,7 @@ for f in $libs; do
+   for b in `( cd $libdir && echo *\`basename $g\`.* )`; do
+     rm -f $dest/$b
+     echo "$src/$b -> $dest/$b"
+-    ../mkinstalldirs $dest
++    $srcdir/../mkinstalldirs $dest
+     ln -s $src/$b $dest/$b
+   done
+ done
+--- origsrc/sawfish-1.7.1/themes/Makefile.in	2010-12-10 14:03:17.000000000 -0600
++++ src/sawfish-1.7.1/themes/Makefile.in	2011-02-07 02:48:14.951581400 -0600
+@@ -51,7 +51,7 @@ install : all installdirs
+ 	  for f in $(srcdir)/$$d/*; do \
+ 	    if [ $$f != $(srcdir)/$$d/CVS ]; then \
+ 	      ( cd $(srcdir) && tar czf $$d.tar.gz $$d/* ) ; \
+-	      $(INSTALL_DATA) $$d.tar.gz $(DESTDIR)$(themedir)/$$d.tar.gz; \
++	      $(INSTALL_DATA) $(srcdir)/$$d.tar.gz $(DESTDIR)$(themedir)/$$d.tar.gz; \
+ 	    fi \
+ 	  done \
+ 	done

@@ -1,0 +1,7 @@
+category: X11
+requires: libgdk_pixbuf2.0_0 libgdk_pixbuf_xlib2.0_0 libglib2.0_0 libgtk2.0_0 libICE6 libpango1.0_0 librep9 libSM6 libX11_6 libXext6 libXft2 libXinerama1 libXrandr2 rep-gtk
+sdesc: "Extensible window manager based on Lisp-like scripting language"
+ldesc: "Sawfish is an extensible window manager using an Emacs Lisp-like 
+scripting language--all window decorations are configurable, the basic 
+idea is to have as much user-interface policy as possible controlled 
+through the Lisp language."
